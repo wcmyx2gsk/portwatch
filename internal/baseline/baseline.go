@@ -68,3 +68,8 @@ func Diff(base *Baseline, current []ports.Port) (added []ports.Port, removed []p
 	}
 	return added, removed
 }
+
+// Age returns the duration since the baseline was created.
+func (b *Baseline) Age() time.Duration {
+	return time.Since(b.CreatedAt).Truncate(time.Second)
+}
