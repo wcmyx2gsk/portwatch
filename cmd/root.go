@@ -4,49 +4,34 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/portwatch/portwatch/internal/ports"
 	"github.com/spf13/cobra"
+	"github.com/user/portwatch/internal/ports"
 )
 
 var rootCmd = &cobra.Command{
 	Use:   "portwatch",
 	Short: "Monitor open ports and alert on unexpected listeners",
-	Long: `portwatch is a lightweight CLI daemon that scans active
-network listeners and reports unexpected open ports based on
-a configurable allowlist.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runScan()
-	},
+	RunE:  runScan,
 }
 
-var scanCmd = &cobra.Command{
-	Use:   "scan",
-	Short: "Perform a one-shot scan of open ports",
-	RunE: func(cmd *cobra.Command, args []string) error {
-		return runScan()
-	},
-}
-
-func runScan() error {
-	listeners, err := ports.Scan()
+func runScan(cmd *cobra.Command, args []string) error {
+	openPorts, err := ports.Scan()
 	if err != nil {
 		return fmt.Errorf("scan failed: %w", err)
 	}
-
-	if len(listeners) == 0 {
-		fmt.Println("No active listeners found.")
+	if len(openPorts) == 0 {
+		fmt.Println("No listening ports found.")
 		return nil
 	}
-
-	fmt.Printf("%-8s %-20s %s\n", "PROTO", "ADDRESS", "PORT")
-	fmt.Println("---------------------------------------")
-	for _, l := range listeners {
-		fmt.Printf("%-8s %-20s %d\n", l.Protocol, l.Address, l.Port)
+	fmt.Printf("%-6s %-21s %s\n", "PROTO", "ADDRESS", "STATE")
+	fmt.Println("----------------------------------------------")
+	for _, p := range openPorts {
+		fmt.Println(p.Display())
 	}
-
 	return nil
 }
 
+// Execute runs the root command.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -55,5 +40,5 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.AddCommand(scanCmd)
+	rootCmd.CompletionOptions.DisableDefaultCmd = true
 }
