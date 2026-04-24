@@ -84,6 +84,31 @@ func TestNotifyDiff_NoChanges(t *testing.T) {
 	}
 }
 
+// TestNotifyDiff_AddedAndRemoved verifies that when a diff contains both added
+// and removed ports, both ALERT and WARN lines appear in the output.
+func TestNotifyDiff_AddedAndRemoved(t *testing.T) {
+	var buf bytes.Buffer
+	n := alert.NewNotifier(&buf)
+
+	diff := baseline.DiffResult{
+		Added: []ports.Port{
+			{Proto: "tcp", Addr: "0.0.0.0", Port: 8080, PID: 42},
+		},
+		Removed: []ports.Port{
+			{Proto: "tcp", Addr: "127.0.0.1", Port: 9090, PID: 7},
+		},
+	}
+	n.NotifyDiff(diff)
+
+	out := buf.String()
+	if !strings.Contains(out, "ALERT") {
+		t.Errorf("expected ALERT for added port, got: %s", out)
+	}
+	if !strings.Contains(out, "WARN") {
+		t.Errorf("expected WARN for removed port, got: %s", out)
+	}
+}
+
 func TestNewNotifier_DefaultsToStdout(t *testing.T) {
 	n := alert.NewNotifier(nil)
 	if n == nil {
