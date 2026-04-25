@@ -56,6 +56,29 @@ portwatch --allow 22,80,443 --webhook https://hooks.example.com/alert
 | `--interval` | `30s`   | How often to scan for open ports     |
 | `--webhook`  | none    | Webhook URL to POST alerts to        |
 | `--verbose`  | false   | Enable verbose logging               |
+| `--config`   | none    | Path to a YAML config file           |
+
+---
+
+## Config File
+
+Instead of passing flags each time, you can provide a YAML config file:
+
+```bash
+portwatch --config /etc/portwatch/config.yaml
+```
+
+```yaml
+allow:
+  - 22
+  - 80
+  - 443
+interval: 30s
+webhook: https://hooks.example.com/alert
+verbose: false
+```
+
+Command-line flags take precedence over values defined in the config file.
 
 ---
 
