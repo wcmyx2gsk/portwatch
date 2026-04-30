@@ -56,6 +56,7 @@ var snapshotDiffCmd = &cobra.Command{
 			return nil
 		}
 
+		fmt.Printf("Snapshot taken: %s\n", old.Timestamp.Format(time.RFC3339))
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 		for _, p := range added {
 			fmt.Fprintf(w, "+ ADDED\t%s\t%s:%d\n", p.Protocol, p.LocalAddr, p.LocalPort)
@@ -64,6 +65,7 @@ var snapshotDiffCmd = &cobra.Command{
 			fmt.Fprintf(w, "- REMOVED\t%s\t%s:%d\n", p.Protocol, p.LocalAddr, p.LocalPort)
 		}
 		w.Flush()
+		fmt.Printf("\n%d added, %d removed\n", len(added), len(removed))
 		return nil
 	},
 }
