@@ -15,8 +15,13 @@ type ProcessInfo struct {
 	Exe  string
 }
 
+// String returns a human-readable representation of the ProcessInfo.
+func (p *ProcessInfo) String() string {
+	return fmt.Sprintf("%s (pid=%d, exe=%s)", p.Name, p.PID, p.Exe)
+}
+
 // LookupProcess attempts to find the process that owns the given inode
-// by scanning /proc/<pid>/fd and /proc/<pid>/net/tcp entries.
+// by scanning /proc/<pid>/fd and matching against socket inode symlinks.
 func LookupProcess(inode uint64) (*ProcessInfo, error) {
 	entries, err := os.ReadDir("/proc")
 	if err != nil {
