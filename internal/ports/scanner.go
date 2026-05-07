@@ -82,8 +82,19 @@ func parseHexAddr(hexAddr string) (string, uint16, error) {
 
 	portVal, err := strconv.ParseUint(parts[1], 16, 16)
 	if err != nil {
-		return "", 0, err
+		return "", 0, fmt.Errorf("invalid port %q in address %s: %w", parts[1], hexAddr, err)
 	}
 
 	return parts[0], uint16(portVal), nil
+}
+
+// FilterByPort returns only the listeners matching the given port number.
+func FilterByPort(listeners []Listener, port uint16) []Listener {
+	var result []Listener
+	for _, l := range listeners {
+		if l.Port == port {
+			result = append(result, l)
+		}
+	}
+	return result
 }
